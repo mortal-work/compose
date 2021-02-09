@@ -1,0 +1,78 @@
+version: '3.1'
+services:
+# Отладочный контейнер
+  busybox:
+    image: busybox:latest
+    container_name: busybox
+    network_mode: "host"
+    command: ["sleep", "8h"]
+  redis1:
+    image: redis:6.0.10
+    container_name: redis1
+    restart: always
+    # In order to make Docker compatible with Redis Cluster you need to use the host networking mode of Docker.
+    network_mode: "host"
+    # Обсепечиваем конфиг и дата персистанс
+    volumes:
+      - ./node-1/conf/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./node-1/data:/data
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+  redis2:
+    image: redis:6.0.10
+    container_name: redis2
+    restart: always
+    network_mode: "host"
+    volumes:
+      - ./node-2/conf/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./node-2/data:/data
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+  redis3:
+    image: redis:6.0.10
+    container_name: redis3
+    restart: always
+    network_mode: "host"
+    volumes:
+      - ./node-3/conf/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./node-3/data:/data
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+  redis4:
+    image: redis:6.0.10
+    container_name: redis4
+    restart: always
+    network_mode: "host"
+    volumes:
+      - ./node-4/conf/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./node-4/data:/data
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+  redis5:
+    image: redis:6.0.10
+    container_name: redis5
+    restart: always
+    network_mode: "host"
+    volumes:
+      - ./node-5/conf/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./node-5/data:/data
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+  redis6:
+    image: redis:6.0.10
+    container_name: redis6
+    restart: always
+    network_mode: "host"
+    volumes:
+      - ./node-6/conf/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./node-6/data:/data
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+
+  # Собираем кластер (секцию можно не убирать при повторных запусках, т.к. redis понимает что записи уже есть - обсеспечено перситансом на конфиги nodes.conf)
+  redis-cluster-init:
+    image: redis:6.0.10
+    container_name: redis-cluster-init
+    command: redis-cli --cluster create 127.0.0.1:6379 127.0.0.1:6380 127.0.0.1:6381 127.0.0.1:6382 127.0.0.1:6383 127.0.0.1:6384 --cluster-replicas 1 --cluster-yes
+    depends_on:
+      - redis1
+      - redis2
+      - redis3
+      - redis4
+      - redis5
+      - redis6
+    network_mode: "host"
