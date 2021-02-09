@@ -1,0 +1,1 @@
+Запуск из run.sh, комментарии в docker-compose.yaml
